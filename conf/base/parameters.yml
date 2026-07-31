@@ -1,0 +1,24 @@
+# Runtime parameters for Commerce Signals (M0 placeholders).
+#
+# Values are intentionally inert for M0. Subsequent milestones fill them
+# in from real dataset exploration and tuning.
+
+ingestion:
+  source_path: data/01_raw/online_retail_ii.xlsx
+
+churn:
+  # Days without a purchase after which a customer is labelled churned.
+  # Will be derived from real inter-purchase-time distribution in M3.
+  threshold_days: 90
+
+feature_engineering:
+  train_cutoff: "2011-09-01"
+
+training:
+  model_params:
+    objective: binary
+    metric: binary_logloss
+    num_leaves: 31
+    learning_rate: 0.05
+    n_estimators: 500
+    random_state: 42

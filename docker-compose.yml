@@ -1,0 +1,30 @@
+version: "3.9"
+
+# Local-development infrastructure for Commerce Signals.
+#
+# This compose file ONLY brings up MongoDB. The Kedro project itself
+# is run from the host via `uv run kedro ...` or inside the FastAPI
+# container (Dockerfile + image are wired in M6).
+#
+# To start:
+#     docker compose up -d
+# To stop:
+#     docker compose down              # keeps data
+#     docker compose down -v           # wipes data
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: commerce-signals-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    # No auth for local dev. Add a Mongo user and switch the URI to
+    # `mongodb://<user>:<pwd>@mongo:27017` when you need to mirror a
+    # production-shaped setup.
+
+volumes:
+  mongo_data:
+    name: commerce_signals_mongo_data

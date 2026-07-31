@@ -1,0 +1,25 @@
+# Catalog for Commerce Signals (M0).
+#
+# Every entry currently points at `MongoCollectionDataset`. That keeps
+# the contract explicit: by M1 the catalog either reads from or writes
+# to MongoDB collections, and downstream nodes treat the values as
+# plain Python objects (DataFrames by default).
+#
+# The `credentials:` references resolve from `conf/local/credentials.yml`,
+# which is git-ignored. Each credentials block carries a MongoDB URI and
+# the target database name.
+
+raw_transactions:
+  type: commerce_signals.datasets.MongoCollectionDataset
+  collection: raw_transactions
+  credentials: mongo_creds
+
+clean_transactions:
+  type: commerce_signals.datasets.MongoCollectionDataset
+  collection: clean_transactions
+  credentials: mongo_creds
+
+predictions:
+  type: commerce_signals.datasets.MongoCollectionDataset
+  collection: predictions
+  credentials: mongo_creds

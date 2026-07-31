@@ -1,0 +1,5 @@
+kedro_init_version: 1.5.0
+project_name: "Commerce Signals"
+project_version: "0.1.0"
+package_name: "commerce_signals"
+source_dir: "src"
