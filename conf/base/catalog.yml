@@ -13,13 +13,20 @@ raw_transactions:
   type: commerce_signals.datasets.MongoCollectionDataset
   collection: raw_transactions
   credentials: mongo_creds
+  mode: replace
 
 clean_transactions:
   type: commerce_signals.datasets.MongoCollectionDataset
   collection: clean_transactions
   credentials: mongo_creds
+  mode: replace
 
 predictions:
+  # Append-only: the FastAPI /predict endpoint (M6) writes one row per
+  # inference, and a re-run of the batch ingestion must not wipe the
+  # log of past predictions. `mode: replace` here would silently
+  # destroy that history on every pipeline execution.
   type: commerce_signals.datasets.MongoCollectionDataset
   collection: predictions
   credentials: mongo_creds
+  mode: append

@@ -11,6 +11,21 @@ jobs:
     runs-on: ubuntu-latest
     env:
       KEDRO_DISABLE_TELEMETRY: "true"
+    services:
+      mongo:
+        image: mongo:7
+        # Mirrors the local docker-compose service so the same
+        # `TEST_MONGODB_URI` (default: mongodb://localhost:27017)
+        # works in both environments. The service is ephemeral:
+        # nothing is persisted between runs, and teardown happens
+        # automatically when the job ends.
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
 
@@ -27,6 +42,11 @@ jobs:
         run: uv run ruff check .
 
       - name: Test with pytest
+        # The integration tests under tests/test_mongo_dataset.py and
+        # the Mongo-backed parts of the ingestion tests rely on the
+        # `mongo` service above. TEST_MONGODB_URI is left at its
+        # default of mongodb://localhost:27017 so local and CI runs
+        # are byte-for-byte equivalent.
         run: uv run pytest -v --cov=src/commerce_signals --no-cov-on-fail
 
   docker-build:

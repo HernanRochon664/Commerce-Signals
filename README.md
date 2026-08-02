@@ -51,6 +51,32 @@ uv run pytest
 
 ---
 
+## Dataset
+
+This project uses the **Online Retail II** dataset (UCI Machine Learning
+Repository, [dataset page](https://archive.ics.uci.edu/dataset/502/online+retail+ii)).
+It is a transactional dataset from a UK-based online retailer covering
+2009-12-01 to 2011-12-09, with roughly 1 million rows across two sheets
+("Year 2009-2010" and "Year 2010-2011").
+
+**Download is manual, on purpose.** The pipeline does not scrape or
+auto-fetch the file: dataset licensing, version drift, and reproducibility
+all argue for pinning a specific copy under version control of the
+analyst's choice. To add the dataset:
+
+1. Download the `.xlsx` from the UCI page above.
+2. Place it in `data/01_raw/` (the directory is git-ignored; the file
+   is never committed).
+3. Open `conf/base/parameters.yml` and set
+   `ingestion.source_path` to the filename, e.g.
+   `data/01_raw/online_retail_ii.xlsx`.
+
+The ingestion pipeline reads this path, loads both sheets untouched
+(no column renaming, no row filtering — that is M2's job), and writes
+the concatenated rows into the `raw_transactions` MongoDB collection.
+
+---
+
 ## Project structure
 
 ```

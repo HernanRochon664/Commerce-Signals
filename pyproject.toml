@@ -17,6 +17,7 @@ dependencies = [
     "numpy>=1.26,<3.0",
     "fastapi>=0.110,<1.0",
     "uvicorn[standard]>=0.27,<1.0",
+    "openpyxl>=3.1,<4.0",
 ]
 
 [project.optional-dependencies]
@@ -53,5 +54,8 @@ ignore = []
 [tool.pytest.ini_options]
 addopts = "-ra"
 testpaths = ["tests"]
+markers = [
+    "integration: requires a live MongoDB instance; auto-skipped by tests/conftest.py when unreachable",
+]
 [tool.kedro_telemetry]
 project_id = "a95123ce086949fca586fe2e2afa5ed7"

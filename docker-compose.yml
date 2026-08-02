@@ -1,5 +1,3 @@
-version: "3.9"
-
 # Local-development infrastructure for Commerce Signals.
 #
 # This compose file ONLY brings up MongoDB. The Kedro project itself

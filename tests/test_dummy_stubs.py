@@ -1,8 +1,13 @@
-"""Dummy tests for Commerce Signals (M0).
+"""Smoke tests for Commerce Signals (M0 scaffolding + M1 dataset wiring).
 
-Each pipeline gets one import-fails test. The MongoCollectionDataset gets
-a construction test. These will be replaced with real tests in later
-milestones.
+Pipeline modules are imported to confirm they remain importable
+(smoke check on package structure). The MongoCollectionDataset gets
+a construction test plus two negative tests that the M0
+``NotImplementedError("Implementar en M1")`` stub is no longer there.
+
+Real behaviour of ``MongoCollectionDataset._load`` and ``_save`` is
+covered by ``tests/test_mongo_dataset.py`` (integration; auto-skipped
+when no Mongo is reachable) and by ``tests/pipelines/test_ingestion.py``.
 """
 
 from __future__ import annotations
@@ -71,33 +76,6 @@ def test_mongo_collection_dataset_can_be_instantiated() -> None:
         credentials={"uri": "mongodb://localhost:27017", "db": "test_db"},
     )
     assert ds.collection == "test_collection"
-
-
-def test_mongo_collection_dataset_load_raises() -> None:
-    """The stub _load must raise NotImplementedError."""
-    from commerce_signals.datasets import MongoCollectionDataset
-
-    ds = MongoCollectionDataset(
-        collection="x",
-        credentials={"uri": "mongodb://localhost:27017", "db": "test_db"},
-    )
-    import pytest
-    with pytest.raises(NotImplementedError, match="M1"):
-        ds._load()
-
-
-def test_mongo_collection_dataset_save_raises() -> None:
-    """The stub _save must raise NotImplementedError."""
-    from commerce_signals.datasets import MongoCollectionDataset
-
-    ds = MongoCollectionDataset(
-        collection="x",
-        credentials={"uri": "mongodb://localhost:27017", "db": "test_db"},
-    )
-    import pytest
-    with pytest.raises(NotImplementedError, match="M1"):
-        ds._save({"dummy": "data"})
-
 
 def test_mongo_collection_dataset_describe_returns_dict() -> None:
     """_describe should return a dict describing the dataset."""
