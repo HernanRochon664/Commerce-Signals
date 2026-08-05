@@ -28,7 +28,6 @@ env/
 ENV/
 
 # uv
-uv.lock
 .uv-cache/
 
 # Kedro
