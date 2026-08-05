@@ -55,7 +55,7 @@ kedro-telemetry is disabled, deliberately and redundantly. A .telemetry file wit
 - Only MongoCollectionDataset.__init__ has actually run so far. _load and _save have never executed against a real Mongo instance (the M0 ingestion node raises before ever calling _save). When M1 implements the real logic, decide up front whether the dataset gets unit tests with a mocked pymongo client, integration tests against a real Mongo (would need a mongo service added to ci.yml, not just docker-compose locally), or both.
 - FastAPI only exposes GET /health (app/main.py). There is no /predict yet (planned for M6).
 - Dockerfile copies only pyproject.toml, src/, and app/; if you add top-level assets the API image needs, copy them in. The image is run as root, M6 plan calls for hardening (non-root user, healthcheck).
-- mlruns/, data/0[1-8]_*, drift_reports/, conf/local/credentials.yml, .env, uv.lock, .pytest_cache/, .ruff_cache/ are all git-ignored. Do not commit them. .telemetry is the one deliberate exception to "when in doubt, git-ignore it": it must stay tracked.
+- mlruns/, data/0[1-8]_*, drift_reports/, conf/local/credentials.yml, .env, .pytest_cache/, .ruff_cache/ are all git-ignored. Do not commit them. .telemetry is the one deliberate exception to "when in doubt, git-ignore it": it must stay tracked.
 
 ## Conventions to keep
 
