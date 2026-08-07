@@ -1,10 +1,10 @@
-# Runtime parameters for Commerce Signals (M0 placeholders).
+# Runtime parameters for Commerce Signals.
 #
 # Values are intentionally inert for M0. Subsequent milestones fill them
 # in from real dataset exploration and tuning.
 
 ingestion:
-  source_path: data/01_raw/online_retail_ii.xlsx
+  source_path: data/01_raw/online_retail_II.xlsx
 
 churn:
   # Days without a purchase after which a customer is labelled churned.
