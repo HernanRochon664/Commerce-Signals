@@ -21,6 +21,10 @@ clean_transactions:
   credentials: mongo_creds
   mode: replace
 
+validation_report:
+  type: json.JSONDataset
+  filepath: data/08_reporting/validation_report.json
+
 predictions:
   # Append-only: the FastAPI /predict endpoint (M6) writes one row per
   # inference, and a re-run of the batch ingestion must not wipe the

@@ -11,6 +11,15 @@ churn:
   # Will be derived from real inter-purchase-time distribution in M3.
   threshold_days: 90
 
+validation:
+  # Fixed date the `has_future_invoice_date` flag is compared against.
+  # Set to the day after the real max InvoiceDate in Online Retail II
+  # (2011-12-09), so the flag has something meaningful to compare
+  # against for this static historical dataset. If raw_transactions
+  # is ever refreshed with newer data, bump this date, or set it back
+  # to null to use the run-time clock again.
+  reference_date: "2011-12-10"
+
 feature_engineering:
   train_cutoff: "2011-09-01"
 
