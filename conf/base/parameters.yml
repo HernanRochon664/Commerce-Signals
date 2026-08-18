@@ -7,9 +7,11 @@ ingestion:
   source_path: data/01_raw/online_retail_II.xlsx
 
 churn:
-  # Days without a purchase after which a customer is labelled churned.
-  # Will be derived from real inter-purchase-time distribution in M3.
-  threshold_days: 90
+  # 90th percentile of real (non-cancellation) inter-purchase gaps in
+  # this dataset, derived from actual data, not chosen arbitrarily.
+  # See docs si existe un registro de esta decision, o el commit que
+  # introduce este valor.
+  threshold_days: 134
 
 validation:
   # Fixed date the `has_future_invoice_date` flag is compared against.
@@ -21,7 +23,12 @@ validation:
   reference_date: "2011-12-10"
 
 feature_engineering:
-  train_cutoff: "2011-09-01"
+  # First snapshot date, one month after the dataset's real start
+  # (2009-12-01), so the earliest snapshot already reflects some
+  # store activity. The LAST usable snapshot date is NOT a parameter:
+  # se deriva en tiempo de ejecucion a partir del maximo invoice_date
+  # real y churn.threshold_days (ver build_customer_snapshots).
+  snapshot_start_date: "2010-01-01"
 
 training:
   model_params:
