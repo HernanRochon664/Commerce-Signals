@@ -35,6 +35,10 @@ feature_engineering_report:
   type: json.JSONDataset
   filepath: data/08_reporting/feature_engineering_report.json
 
+training_report:
+  type: json.JSONDataset
+  filepath: data/08_reporting/training_report.json
+
 predictions:
   # Append-only: the FastAPI /predict endpoint (M6) writes one row per
   # inference, and a re-run of the batch ingestion must not wipe the

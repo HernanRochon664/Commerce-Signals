@@ -64,6 +64,10 @@ kedro-telemetry is disabled, deliberately and redundantly. A .telemetry file wit
 - _describe() on datasets intentionally omits the credentials URI, never log secrets.
 - Pipeline tags (e.g., tags=["m1-stub"] in pipelines/ingestion/pipeline.py) mark M0 placeholders; remove the tag when replacing the stub with real logic.
 
+## Library documentation
+
+When you need to confirm the current API of an external library (lightgbm, mlflow, pymongo, kedro, etc.), use the context7 tools before writing code, instead of assuming the syntax from memory. This applies especially to: training/callbacks APIs, logging/tracking function signatures, and any pattern marked as deprecated in recent versions.
+
 ## Entry points summary
 
 - Kedro CLI: uv run kedro ... (or uv run python -m commerce_signals, which delegates to kedro.framework.cli.main in src/commerce_signals/__main__.py).

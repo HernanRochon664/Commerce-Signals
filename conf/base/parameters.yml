@@ -33,8 +33,14 @@ feature_engineering:
 training:
   model_params:
     objective: binary
-    metric: binary_logloss
+    boosting_type: gbdt
     num_leaves: 31
     learning_rate: 0.05
     n_estimators: 500
     random_state: 42
+  eval_metric: binary_logloss
+  early_stopping_rounds: 30
+  test_snapshots_count: 3
+  val_snapshots_count: 3
+  precision_targets: [0.5, 0.7]
+  mlflow_experiment_name: "commerce-signals-churn"
