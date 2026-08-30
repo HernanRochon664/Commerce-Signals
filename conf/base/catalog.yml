@@ -48,3 +48,7 @@ predictions:
   collection: predictions
   credentials: mongo_creds
   mode: append
+
+explainability_report:
+  type: json.JSONDataset
+  filepath: data/08_reporting/explainability_report.json

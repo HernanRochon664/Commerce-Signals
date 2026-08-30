@@ -44,3 +44,19 @@ training:
   val_snapshots_count: 3
   precision_targets: [0.5, 0.7]
   mlflow_experiment_name: "commerce-signals-churn"
+
+explainability:
+  # shap.TreeExplainer with feature_perturbation="interventional" has
+  # an internal limit (max_samples, default 100) that subsamples the
+  # background if more than that is requested, with only a warning from the
+  # library itself (“The background dataset has N samples, but max_samples=100”).
+  # It is set to 100 so that the configured number matches what
+  # is actually used. If, in future, a larger background is
+  # actually required, max_samples must be passed explicitly when constructing the mask
+  # in build_explainer (commerce_signals/explainability.py); simply
+  # increasing this value is not sufficient.
+  background_sample_size: 100
+  explanation_sample_size: 1000
+  top_n_examples: 5
+  random_state: 42
+  additivity_tolerance: 0.0001

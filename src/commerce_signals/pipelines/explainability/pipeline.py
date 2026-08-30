@@ -1,12 +1,14 @@
-"""Pipeline definition for the `explainability` stage (M0 stub)."""
+"""Pipeline definition for the `explainability` stage (M5)."""
 
 from __future__ import annotations
 
 from kedro.pipeline import Pipeline, node
 
 from commerce_signals.pipelines.explainability.nodes import (
-    build_global_importance_report,
-    compute_shap_values,
+    compute_churn_explanations,
+    load_model_for_explanation,
+    prepare_explanation_inputs,
+    verify_shap_additivity,
 )
 
 
@@ -15,18 +17,43 @@ def create_pipeline(**kwargs) -> Pipeline:  # noqa: ARG001
     return Pipeline(
         [
             node(
-                func=compute_shap_values,
-                inputs=["churn_model", "X_test"],
-                outputs="shap_explanations",
-                name="compute_shap_values",
-                tags=["m5-stub"],
+                func=prepare_explanation_inputs,
+                inputs=[
+                    "customer_snapshots",
+                    "training_report",
+                    "params:explainability.background_sample_size",
+                    "params:explainability.explanation_sample_size",
+                    "params:explainability.random_state",
+                ],
+                outputs=["background_snapshots", "explanation_snapshots", "sample_info"],
+                name="prepare_explanation_inputs",
             ),
             node(
-                func=build_global_importance_report,
-                inputs="shap_explanations",
-                outputs="global_importance_report",
-                name="build_global_importance_report",
-                tags=["m5-stub"],
+                func=load_model_for_explanation,
+                inputs="training_report",
+                outputs="trained_model_for_explanation",
+                name="load_model_for_explanation",
+            ),
+            node(
+                func=compute_churn_explanations,
+                inputs=[
+                    "trained_model_for_explanation",
+                    "background_snapshots",
+                    "explanation_snapshots",
+                    "sample_info",
+                    "params:explainability.top_n_examples",
+                ],
+                outputs="explainability_report",
+                name="compute_churn_explanations",
+            ),
+            node(
+                func=verify_shap_additivity,
+                inputs=[
+                    "explainability_report",
+                    "params:explainability.additivity_tolerance",
+                ],
+                outputs=None,
+                name="verify_shap_additivity",
             ),
         ],
     )
