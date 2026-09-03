@@ -10,7 +10,11 @@ import mlflow
 import numpy as np
 import pandas as pd
 
-from commerce_signals.explainability import build_explainer, compute_shap_explanations
+from commerce_signals.explainability import (
+    build_explainer,
+    build_shap_background,
+    compute_shap_explanations,
+)
 from commerce_signals.features import FEATURE_COLUMNS
 
 logger = logging.getLogger(__name__)
@@ -48,28 +52,26 @@ def prepare_explanation_inputs(
         WARNING). ``sample_info`` carries requested/used sizes and
         ``run_id`` for downstream nodes.
     """
-    snapshots = customer_snapshots.copy()
-    snapshots["snapshot_date"] = pd.to_datetime(snapshots["snapshot_date"])
+    # Background via shared pure function (M6 refactor)
+    background_df = build_shap_background(
+        customer_snapshots,
+        training_report["split_info"]["train_snapshot_dates"],
+        background_sample_size,
+        random_state,
+    )
 
-    train_dates = pd.to_datetime(training_report["split_info"]["train_snapshot_dates"])
+    # Test pool: same pattern but not shared (only explainability pipeline needs it)
+    snapshots_for_test = customer_snapshots.copy()
+    snapshots_for_test["snapshot_date"] = pd.to_datetime(snapshots_for_test["snapshot_date"])
     test_dates = pd.to_datetime(training_report["split_info"]["test_snapshot_dates"])
+    test_pool = snapshots_for_test[snapshots_for_test["snapshot_date"].isin(test_dates)]
 
-    train_pool = snapshots[snapshots["snapshot_date"].isin(train_dates)]
-    test_pool = snapshots[snapshots["snapshot_date"].isin(test_dates)]
-
-    if len(train_pool) < background_sample_size:
-        logger.warning(
-            "Background pool has %d rows, less than requested background_sample_size=%d; "
-            "using the full pool (%d rows)",
-            len(train_pool),
-            background_sample_size,
-            len(train_pool),
-        )
-        background_df = train_pool
-    else:
-        background_df = train_pool.sample(
-            n=background_sample_size, random_state=random_state
-        )
+    # Need train_pool size for log line (original variable no longer in scope
+    # after extracting build_shap_background). Re-derive cheaply.
+    _snap_for_log = customer_snapshots.copy()
+    _snap_for_log["snapshot_date"] = pd.to_datetime(_snap_for_log["snapshot_date"])
+    _train_dates_for_log = pd.to_datetime(training_report["split_info"]["train_snapshot_dates"])
+    train_pool = _snap_for_log[_snap_for_log["snapshot_date"].isin(_train_dates_for_log)]
 
     if len(test_pool) < explanation_sample_size:
         logger.warning(

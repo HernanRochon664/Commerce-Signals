@@ -121,6 +121,39 @@ class MongoCollectionDataset(AbstractDataset[Any, Any]):
             record.pop("_id", None)
         return pd.DataFrame.from_records(records)
 
+    def load_filtered(self, query: dict[str, Any]) -> pd.DataFrame:
+        """Load documents matching a MongoDB query, not the full collection.
+
+        Unlike _load() (used by Kedro's catalog machinery for full-collection
+        reads), this is called directly by application code (M6's FastAPI
+        app) that needs a targeted lookup -- e.g. one customer_id's history
+        -- without paying the cost of loading the entire collection.
+
+        Args:
+            query: MongoDB filter dict passed verbatim to ``find()``.
+
+        Returns:
+            A DataFrame with one row per matching document. If no
+            documents match, an empty DataFrame is returned (no
+            exception). The Mongo ``_id`` field is dropped if present.
+
+        Raises:
+            KeyError: If credentials lack ``uri``/``db``.
+            pymongo.errors.PyMongoError: On Mongo failure.
+        """
+        uri, db_name = self._resolve_credentials()
+        with MongoClient(uri) as client:
+            collection = client[db_name][self._collection]
+            cursor = collection.find(query)
+            records = list(cursor)
+
+        if not records:
+            return pd.DataFrame()
+
+        for record in records:
+            record.pop("_id", None)
+        return pd.DataFrame.from_records(records)
+
     def _save(self, data: Any) -> None:
         """Persist ``data`` to the MongoDB collection.
 

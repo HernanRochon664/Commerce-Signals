@@ -234,7 +234,16 @@ def test_end_to_end_training_run(mini_training_run) -> None:
     assert report["early_stopping_rounds"] == 5
     assert report["best_iteration"] >= 1
     assert report["split_info"] == split_info
-    assert set(report["evaluation_metrics"]) == {"val", "test", "test_per_snapshot"}
+    assert set(report["evaluation_metrics"]) == {
+        "threshold_used",
+        "val",
+        "test",
+        "test_per_snapshot",
+    }
+    assert 0.0 <= report["evaluation_metrics"]["threshold_used"] <= 1.0
+    assert report["evaluation_metrics"]["threshold_used"] == pytest.approx(
+        evaluation_metrics["threshold_used"]
+    )
 
     for split in ("val", "test"):
         metrics = report["evaluation_metrics"][split]

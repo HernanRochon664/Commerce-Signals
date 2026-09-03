@@ -430,6 +430,7 @@ def log_training_run_and_build_report(
                 else:
                     flattened_metrics[f"{prefix}_{key}"] = value
         mlflow.log_metrics(flattened_metrics)
+        mlflow.log_metric("threshold_used", evaluation_metrics["threshold_used"])
 
         mlflow.lightgbm.log_model(trained_model, artifact_path="model")
 
@@ -446,6 +447,7 @@ def log_training_run_and_build_report(
         "best_iteration": int(trained_model.best_iteration_),
         "split_info": split_info,
         "evaluation_metrics": {
+            "threshold_used": evaluation_metrics["threshold_used"],
             "val": evaluation_metrics["val"],
             "test": evaluation_metrics["test"],
             "test_per_snapshot": evaluation_metrics["test_per_snapshot"],

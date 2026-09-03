@@ -1,18 +1,15 @@
-# Minimal FastAPI serving image for Commerce Signals.
+# FastAPI serving image for Commerce Signals (M6).
 #
-# M0/M1 - installs runtime dependencies only via `uv sync
-# --no-install-project`. Does NOT build or install the
-# commerce-signals package itself: app/main.py is currently
-# standalone and does not import from src/commerce_signals, so there
-# is no reason to build the local package inside this image yet.
+# M6 resolves the "needs revisiting" note from M0/M1: the API now imports
+# from src/commerce_signals (features, explainability, datasets), so the
+# image must make that package importable. Instead of installing the local
+# package as editable (which would require hatchling/README.md handling that
+# was deliberately avoided in M1), the source is copied and PYTHONPATH is
+# set so src/ is on the import path. No `uv sync --no-install-project`
+# change is needed beyond the copy + env var.
 #
-# When M6 wires FastAPI to the trained model/pipeline and needs
-# src/commerce_signals, this Dockerfile needs revisiting: hatchling
-# requires pyproject.toml's `readme` field to point at a file that
-# exists in the build context, so installing the local package will
-# need README.md copied in too (or a restructured pyproject.toml).
-#
-# Hardened further in M6: non-root user, healthcheck, multi-stage build.
+# Future hardening (M6 plan note): non-root user, healthcheck, multi-stage
+# build — not required for M6 functional scope, but noted for later.
 #
 # Build:
 #     docker build -t commerce-signals:latest .
@@ -25,6 +22,8 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 COPY pyproject.toml uv.lock ./
 RUN uv sync --frozen --no-install-project
 COPY app/ app/
+COPY src/ src/
 ENV PATH="/app/.venv/bin:$PATH"
+ENV PYTHONPATH="/app/src:$PYTHONPATH"
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -162,3 +162,38 @@ def test_missing_credentials_keys_raise() -> None:
     ds = MongoCollectionDataset(collection="x", credentials={})
     with pytest.raises(KeyError, match="uri"):
         ds._load()
+
+
+def test_load_filtered_returns_only_matching_documents(
+    mongo_test_collection, mongo_uri, mongo_test_db
+) -> None:
+    """load_filtered with a customer_id filter returns only matching docs."""
+    _, client, name = mongo_test_collection
+    df = pd.DataFrame(
+        {
+            "customer_id": ["A", "A", "B", "C", "C", "C"],
+            "value": [1, 2, 3, 4, 5, 6],
+        }
+    )
+    ds = MongoCollectionDataset(collection=name, credentials=_credentials(mongo_uri))
+    ds._save(df)
+
+    filtered = ds.load_filtered({"customer_id": "A"})
+    assert len(filtered) == 2
+    assert set(filtered["customer_id"].tolist()) == {"A"}
+    # Verify other ids unaffected in collection
+    assert client["commerce_signals_test"][name].count_documents({}) == 6
+
+    filtered_b = ds.load_filtered({"customer_id": "B"})
+    assert len(filtered_b) == 1
+
+    filtered_none = ds.load_filtered({"customer_id": "NONEXISTENT"})
+    assert filtered_none.empty
+    assert isinstance(filtered_none, pd.DataFrame)
+
+
+def test_load_filtered_missing_credentials_raises() -> None:
+    """load_filtered with missing credentials raises KeyError."""
+    ds = MongoCollectionDataset(collection="x", credentials={})
+    with pytest.raises(KeyError, match="uri"):
+        ds.load_filtered({"customer_id": "A"})

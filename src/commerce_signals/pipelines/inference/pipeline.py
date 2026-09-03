@@ -1,32 +1,21 @@
-"""Pipeline definition for the `inference` stage (M0 stub).
+"""Pipeline definition for the `inference` stage (M6).
 
-In M6 this pipeline is invoked by the FastAPI app via the
-``KedroSession`` ``run()`` API with ``runtime_params`` containing the
-``customer_id`` from the request. For M0 the pipeline exists with a
-single stub node so it can be discovered and validated.
+Vacío a propósito (opción A).
+
+``predict_customer_churn`` en ``nodes.py`` es una función pura, reutilizable
+y testeada, usada de verdad por ``app/main.py`` vía FastAPI, no a través de
+Kedro. Wirearla como pipeline batch de Kedro necesitaría un dataset custom que
+resuelva un modelo desde MLflow por ``run_id`` (no existe hoy) y una
+conversión de ``dict`` a ``DataFrame`` antes de guardar en ``predictions``.
+Se difiere hasta que haya un consumidor real (ej. re-scoring batch de toda la
+base de clientes), no se construye a medias sin necesidad concreta.
 """
 
 from __future__ import annotations
 
-from kedro.pipeline import Pipeline, node
-
-from commerce_signals.pipelines.inference.nodes import predict_for_customer
+from kedro.pipeline import Pipeline
 
 
 def create_pipeline(**kwargs) -> Pipeline:  # noqa: ARG001
-    """Create the inference pipeline."""
-    return Pipeline(
-        [
-            node(
-                func=predict_for_customer,
-                inputs={
-                    "customer_id": "params:customer_id",
-                    "churn_model": "churn_model",
-                    "customer_features": "customer_features",
-                },
-                outputs="predictions",
-                name="predict_for_customer",
-                tags=["m6-stub"],
-            ),
-        ],
-    )
+    """Create the inference pipeline (intencionalmente vacío, ver docstring)."""
+    return Pipeline([])

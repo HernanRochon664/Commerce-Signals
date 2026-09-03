@@ -7,10 +7,54 @@ future consumers. No logging, no Kedro, no Mongo -- same contract as
 
 from __future__ import annotations
 
+import logging
+
 import pandas as pd
 import shap
 
 from commerce_signals.features import FEATURE_COLUMNS
+
+logger = logging.getLogger(__name__)
+
+
+def build_shap_background(
+    customer_snapshots: pd.DataFrame,
+    train_snapshot_dates: list[str],
+    background_sample_size: int,
+    random_state: int,
+) -> pd.DataFrame:
+    """Build SHAP interventional background (pure function).
+
+    Identical logic to ``prepare_explanation_inputs``'s background branch:
+    coercion of dates, filter by ``isin``, sample with fallback to full
+    pool + WARNING if pool smaller than requested.
+
+    Args:
+        customer_snapshots: Full snapshots table.
+        train_snapshot_dates: ISO date strings from
+            ``training_report["split_info"]["train_snapshot_dates"]``.
+        background_sample_size: Requested rows.
+        random_state: Seed for sampling.
+
+    Returns:
+        DataFrame filtered to train dates, sampled to requested size or
+        full pool if smaller.
+    """
+    snapshots = customer_snapshots.copy()
+    snapshots["snapshot_date"] = pd.to_datetime(snapshots["snapshot_date"])
+    train_dates = pd.to_datetime(train_snapshot_dates)
+    train_pool = snapshots[snapshots["snapshot_date"].isin(train_dates)]
+
+    if len(train_pool) < background_sample_size:
+        logger.warning(
+            "Background pool has %d rows, less than requested background_sample_size=%d; "
+            "using the full pool (%d rows)",
+            len(train_pool),
+            background_sample_size,
+            len(train_pool),
+        )
+        return train_pool
+    return train_pool.sample(n=background_sample_size, random_state=random_state)
 
 
 def build_explainer(
